@@ -86,6 +86,7 @@ class BaseModelAdmin(six.with_metaclass(RenameBaseModelAdminMethods)):
     formfield_overrides = {}
     readonly_fields = ()
     ordering = None
+    for_concrete_model = True
 
     def __init__(self):
         overrides = FORMFIELD_FOR_DBFIELD_DEFAULTS.copy()
@@ -550,7 +551,8 @@ class ModelAdmin(BaseModelAdmin):
         from django.contrib.admin.models import LogEntry, ADDITION
         LogEntry.objects.log_action(
             user_id         = request.user.pk,
-            content_type_id = ContentType.objects.get_for_model(object).pk,
+            content_type_id = ContentType.objects.get_for_model(
+                object, for_concrete_model=self.for_concrete_model).pk,
             object_id       = object.pk,
             object_repr     = force_text(object),
             action_flag     = ADDITION
@@ -565,7 +567,8 @@ class ModelAdmin(BaseModelAdmin):
         from django.contrib.admin.models import LogEntry, CHANGE
         LogEntry.objects.log_action(
             user_id         = request.user.pk,
-            content_type_id = ContentType.objects.get_for_model(object).pk,
+            content_type_id = ContentType.objects.get_for_model(
+                object, for_concrete_model=self.for_concrete_model).pk,
             object_id       = object.pk,
             object_repr     = force_text(object),
             action_flag     = CHANGE,
@@ -582,7 +585,8 @@ class ModelAdmin(BaseModelAdmin):
         from django.contrib.admin.models import LogEntry, DELETION
         LogEntry.objects.log_action(
             user_id         = request.user.pk,
-            content_type_id = ContentType.objects.get_for_model(self.model).pk,
+            content_type_id = ContentType.objects.get_for_model(
+                self.model, for_concrete_model=self.for_concrete_model).pk,
             object_id       = object.pk,
             object_repr     = object_repr,
             action_flag     = DELETION
@@ -802,7 +806,8 @@ class ModelAdmin(BaseModelAdmin):
             'has_absolute_url': hasattr(self.model, 'get_absolute_url'),
             'form_url': form_url,
             'opts': opts,
-            'content_type_id': ContentType.objects.get_for_model(self.model).id,
+            'content_type_id': ContentType.objects.get_for_model(
+                self.model, for_concrete_model=self.for_concrete_model).id,
             'save_as': self.save_as,
             'save_on_top': self.save_on_top,
         })
@@ -1395,7 +1400,8 @@ class ModelAdmin(BaseModelAdmin):
         app_label = opts.app_label
         action_list = LogEntry.objects.filter(
             object_id=unquote(object_id),
-            content_type__id__exact=ContentType.objects.get_for_model(model).id
+            content_type__id__exact=ContentType.objects.get_for_model(
+                model, for_concrete_model=self.for_concrete_model).id
         ).select_related().order_by('action_time')
 
         context = {
