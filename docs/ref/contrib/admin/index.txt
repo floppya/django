@@ -323,6 +323,14 @@ subclass::
     of the filter interface with the box of unselected options appearing above
     the box of selected options.
 
+.. attribute:: ModelAdmin.for_concrete_model
+
+	.. versionadded:: 1.6
+
+	Controls whether this ``ModelAdmin`` will directly use the supplied model
+	or its concrete ancestor. By default, this is set to ``True`` and thus the
+	``ModelAdmin`` will use the concrete model.
+	
 .. attribute:: ModelAdmin.form
 
     By default a ``ModelForm`` is dynamically created for your model. It is
